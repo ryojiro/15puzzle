@@ -60,12 +60,12 @@ bool chk(int x, int y) {
 	return true;
 }
 
-bool dfs(int cnt, int limit, S &s, set<vector<vi> > &memo) {
+bool dfs(int cnt, int limit, S s, set<vector<vi> > &memo) {
+	bool res = false;
 	REP(i, 4) {
 		vector<vi> vvi = s.vvi;
 		int y = s.pnt.first + dy[i];
 		int x = s.pnt.second + dx[i];
-		bool res = false;
 		if(chk(y, x)) {
 			swap(vvi[s.pnt.first][s.pnt.second], vvi[y][x]);
 			if(memo.count(vvi)) continue;
@@ -73,7 +73,7 @@ bool dfs(int cnt, int limit, S &s, set<vector<vi> > &memo) {
 			if(valid(vvi, s.cnt+1))
 				return true;
 			if(cnt < limit)
-				res = dfs(cnt+1, S{vvi, s.cnt+1, pi(y, x)}, memo)
+				res = dfs(cnt+1, limit, S{vvi, s.cnt+1, pi(y, x)}, memo);
 		}
 	}
 	return res;
