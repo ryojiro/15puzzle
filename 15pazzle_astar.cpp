@@ -18,6 +18,7 @@
 #include <cctype>
 #include <string>
 #include <cstring>
+#include <sys/time.h>
 using namespace std;
 #define REP(i,n) for(int i = 0; i < (int)(n); i++)
 #define FOR(i,a,b) for(int i = (a); i < (int)(b); i++)
@@ -63,8 +64,8 @@ bool chk(int x, int y) {
 }
 
 int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
+	struct timeval s, e;
+	gettimeofday(&s, NULL);
 
 	int in;
 	while(cin >> in) {
@@ -110,5 +111,7 @@ int main() {
 			}
 		}
 	}
+	gettimeofday(&e, NULL);
+  printf("time = %lf\n", (e.tv_sec - s.tv_sec) + (e.tv_usec - s.tv_usec)*1.0E-6);
 	return 0;
 }
