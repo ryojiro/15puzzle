@@ -18,6 +18,7 @@
 #include <cctype>
 #include <string>
 #include <cstring>
+#include <sys/time.h>
 using namespace std;
 #define REP(i,n) for(int i = 0; i < (int)(n); i++)
 #define FOR(i,a,b) for(int i = (a); i < (int)(b); i++)
@@ -40,22 +41,10 @@ const pi goal[] = {
 
 struct S {
 	vvi vv;
-	int cnt;
 	pi pnt;
 };
 
-//枝刈り
-bool valid(vvi &vv, int cnt) {
-	int res = 0;
-	REP(i, 4) REP(j, 4) {
-		if(vv[i][j] == 0) continue;
-		res += abs(goal[vv[i][j]].first - i);
-		res += abs(goal[vv[i][j]].second - j);
-	}
-	return (res + cnt > 45) ? true : false;
-}
-
-int getComp(vvi &vv) {
+int valid(vvi &vv, int cnt) {
 	int res = 0;
 	REP(i, 4) REP(j, 4) {
 		if(vv[i][j] == 0) continue;
@@ -71,36 +60,37 @@ bool chk(int x, int y) {
 	return true;
 }
 
-int bfs(int limit, queue<S> &q) {
-	while(!q.empty()) {
-		S s = q.front(); q.pop();
-		REP(i, 4) {
-			vvi vv = s.vv;
-			int y = s.pnt.first + dy[i];
-			int x = s.pnt.second + dx[i];
-			if(chk(y, x)) {
-				swap(vv[s.pnt.first][s.pnt.second], vv[y][x]);
-				int com = getComp(vv);
-				if(com + s.cnt+1 > limit) continue;
-				if(com + s.cnt+1 > 45) continue;
-				if(!com) {
-					return s.cnt+1;
-				}
-				q.push(S{vv, s.cnt+1, pi(y, x)});
-			}
+
+set<vvi> memo;
+
+void dfs(int cnt, int limit, S s, bool &hit, int &times) {
+	times++;
+	int value = valid(s.vv, cnt);
+	if(!value) hit = true;
+	if(value + cnt > 45) return;
+	if(memo.count(s.vv)) return;
+	memo.insert(s.vv);
+	if(cnt >= limit) return;
+
+	REP(i, 4) {
+		vvi vv = s.vv;
+		int y = s.pnt.first + dy[i];
+		int x = s.pnt.second + dx[i];
+		if(chk(y, x)) {
+			swap(vv[s.pnt.first][s.pnt.second], vv[y][x]);
+			dfs(cnt+1, limit, S{vv, pi(y, x)}, hit, times);
 		}
 	}
-	return -1;
+	return;
 }
 
 int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
 
 	int in;
 	while(cin >> in) {
-		chrono::system_clock::time_point  start, end;
-		start = chrono::system_clock::now();
+		struct timeval s, e;
+		gettimeofday(&s, NULL);
+
 		vvi vv(4);
 		pi pnt;
 		REP(i, 4) {
@@ -114,30 +104,30 @@ int main() {
 					pnt = pi(i, j);
 			}
 		}
-	/*
-	REP(i, 4) {
-		REP(j, 4)
-			cout << vv[i][j] << ' ';
-		cout << endl;
-	}
-	*/
-		if(!getComp(vv)) {
-			cout << 0 << endl;
-			continue;
-		}
-
-		queue<S> q;
-		REP(i, 45) {
-			q.push(S{vv, 0, pnt});
-			int ans = bfs(i, q);
-			if(ans != -1) {
-				cout << ans << endl;
-				break;
+		/*
+		REP(i, 4) {
+			REP(j, 4) {
+				cout << vv[i][j] << ' ';
 			}
+			cout << endl;
 		}
-		end = chrono::system_clock::now();
-		double elapsed = chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-		cout << elapsed << " ms" << endl;
+		cout << "pnt: " << pnt.first << ' ' << pnt.second << endl;
+		*/
+
+
+		REP(i, 46) {
+			int times = 0;
+			bool hit = false;
+			memo.clear();
+			dfs(0, i, S{vv, pnt}, hit, times);
+			//cout << "i: " << i << " times: " << times << endl;
+			//if(hit) {
+				cout << i << endl;
+				gettimeofday(&e, NULL);
+			  printf("time = %lf\n", (e.tv_sec - s.tv_sec) + (e.tv_usec - s.tv_usec)*1.0E-6);
+				//break;
+			//}
+		}
 	}
 	return 0;
 }

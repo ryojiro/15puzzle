@@ -18,6 +18,7 @@
 #include <cctype>
 #include <string>
 #include <cstring>
+#include <sys/time.h>
 using namespace std;
 #define REP(i,n) for(int i = 0; i < (int)(n); i++)
 #define FOR(i,a,b) for(int i = (a); i < (int)(b); i++)
@@ -36,6 +37,7 @@ const pi goal[] = {
 	pi(1,3), pi(2,0), pi(2,1), pi(2,2),
 	pi(2,3), pi(3,0), pi(3,1), pi(3,2)
 };
+int cnt_q;
 
 struct S {
 	vector<vi> vvi;
@@ -84,11 +86,11 @@ queue<S> find(queue<S> &q, map<vector<vi>, int> &mymap, map<vector<vi>, int> &to
 }
 
 int main() {
-	ios_base::sync_with_stdio(0);
-	cin.tie(0);
 
 	int in;
 	while(cin >> in) {
+		struct timeval ss, e;
+		gettimeofday(&ss, NULL);
 		S s;
 		vector<vi> vvi(4), vvi2(4);
 		pi pnt;
@@ -113,13 +115,25 @@ int main() {
 		q2.push(S{vvi2, 0, pi(3, 3)});
 		m1[vvi] = 0;
 		m2[vvi2] = 0;
+		if(!valid(vvi, 45)) {
+			cout << 0 << endl;
+			gettimeofday(&e, NULL);
+			printf("time = %lf\n", (e.tv_sec - ss.tv_sec) + (e.tv_usec - ss.tv_usec)*1.0E-6);
+			cout << "queue = " << cnt_q << endl;
+			continue;
+		}
 
 		while(true) {
 			q1 = find(q1, m1, m2);
 			if(q1.empty()) break;
+			cnt_q = max(cnt_q, (int)q1.size() + (int)q2.size());
 			q2 = find(q2, m2, m1);
 			if(q2.empty()) break;
+			cnt_q = max(cnt_q, (int)q1.size() + (int)q2.size());
 		}
+		gettimeofday(&e, NULL);
+		printf("time = %lf\n", (e.tv_sec - ss.tv_sec) + (e.tv_usec - ss.tv_usec)*1.0E-6);
+		cout << "queue = " << cnt_q << endl;
 	}
 	return 0;
 }

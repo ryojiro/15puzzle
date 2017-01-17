@@ -47,6 +47,8 @@ struct S {
 	}
 };
 
+int cnt_q;
+
 int getComp(vector<vi> &vvi) {
 	int res = 0;
 	REP(i, 4) REP(j, 4) {
@@ -64,11 +66,11 @@ bool chk(int x, int y) {
 }
 
 int main() {
-	struct timeval s, e;
-	gettimeofday(&s, NULL);
 
 	int in;
 	while(cin >> in) {
+		struct timeval ss, e;
+		gettimeofday(&ss, NULL);
 		S s;
 		vector<vi> vvi(4);
 		pi pnt;
@@ -90,6 +92,7 @@ int main() {
 		memo.insert(vvi);
 
 		while(!pq.empty()) {
+			cnt_q = max(cnt_q, (int)pq.size());
 			S s = pq.top(); pq.pop();
 
 			if(s.com == s.cnt) {
@@ -105,13 +108,17 @@ int main() {
 					if(!memo.count(vvi)) {
 						memo.insert(vvi);
 						int com = getComp(vvi)+s.cnt+1;
+						//if(com > 45) continue;
 						pq.push(S{vvi, s.cnt+1, com, pi(y, x)});
 					}
 				}
 			}
 		}
+		gettimeofday(&e, NULL);
+  	printf("time = %lf\n", (e.tv_sec - ss.tv_sec) + (e.tv_usec - ss.tv_usec)*1.0E-6);
+		cout << "queue = " << cnt_q << endl;
+		cnt_q = 0;
+
 	}
-	gettimeofday(&e, NULL);
-  printf("time = %lf\n", (e.tv_sec - s.tv_sec) + (e.tv_usec - s.tv_usec)*1.0E-6);
 	return 0;
 }
