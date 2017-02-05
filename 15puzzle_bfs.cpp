@@ -25,7 +25,6 @@ using namespace std;
 #define pb push_back
 #define mp make_pair
 typedef vector<int> vi;
-typedef vector<vi> vvi;
 typedef pair<int, int> pi;
 typedef long long ll;
 typedef unsigned long long ull;
@@ -40,16 +39,17 @@ const pi goal[] = {
 };
 
 struct S {
-	vvi vv;
+	vector<vi> vvi;
+	int cnt, com;
 	pi pnt;
 };
 
-int valid(vvi &vv, int cnt) {
+int getComp(vector<vi> &vvi) {
 	int res = 0;
 	REP(i, 4) REP(j, 4) {
-		if(vv[i][j] == 0) continue;
-		res += abs(goal[vv[i][j]].first - i);
-		res += abs(goal[vv[i][j]].second - j);
+		if(vvi[i][j] == 0) continue;
+		res += abs(goal[vvi[i][j]].first - i);
+		res += abs(goal[vvi[i][j]].second - j);
 	}
 	return res;
 }
@@ -60,61 +60,59 @@ bool chk(int x, int y) {
 	return true;
 }
 
-set<vvi> memo;
-
-void dfs(int cnt, int limit, S s, bool &hit) {
-	int value = valid(s.vv, cnt);
-	if(!value) hit = true;
-	if(value + cnt > 45) return;
-	if(memo.count(s.vv)) return;
-	memo.insert(s.vv);
-	if(cnt >= limit) return;
-
-	REP(i, 4) {
-		vvi vv = s.vv;
-		int y = s.pnt.first + dy[i];
-		int x = s.pnt.second + dx[i];
-		if(chk(y, x)) {
-			swap(vv[s.pnt.first][s.pnt.second], vv[y][x]);
-			dfs(cnt+1, limit, S{vv, pi(y, x)}, hit);
-		}
-	}
-	return;
-}
-
 int main() {
 
 	int in;
+	int cnt_q = 0;
 	while(cin >> in) {
-		struct timeval s, e;
-		gettimeofday(&s, NULL);
-
-		vvi vv(4);
+		struct timeval ss, e;
+		gettimeofday(&ss, NULL);
+		S s;
+		vector<vi> vvi(4);
 		pi pnt;
 		REP(i, 4) {
-			vv[i].resize(4);
+			vvi[i].resize(4);
 			REP(j, 4) {
 				if(i || j)
-					cin >> vv[i][j];
+					cin >> vvi[i][j];
 				else
-					vv[i][j] = in;
-				if(vv[i][j] == 0)
+					vvi[i][j] = in;
+				if(vvi[i][j] == 0)
 					pnt = pi(i, j);
 			}
 		}
 
-		REP(i, 46) {
-			int times = 0;
-			bool hit = false;
-			memo.clear();
-			dfs(0, i, S{vv, pnt}, hit);
-			if(hit) {
-				gettimeofday(&e, NULL);
-			  printf("time = %lf\n", (e.tv_sec - s.tv_sec) + (e.tv_usec - s.tv_usec)*1.0E-6);
-				cout << "i: " << i << endl;
+		set<vector<vi>> memo;
+		queue<S> pq;
+		pq.push(S{vvi, 0, getComp(vvi), pnt});
+		memo.insert(vvi);
+
+		while(!pq.empty()) {
+			cnt_q = max(cnt_q, (int)pq.size());
+			S s = pq.front(); pq.pop();
+
+			if(s.com == s.cnt) {
+				cout << s.cnt << endl;
 				break;
 			}
+			REP(i, 4) {
+				vvi = s.vvi;
+				int y = s.pnt.first + dy[i];
+				int x = s.pnt.second + dx[i];
+				if(chk(y, x)) {
+					swap(vvi[s.pnt.first][s.pnt.second], vvi[y][x]);
+					if(!memo.count(vvi)) {
+						memo.insert(vvi);
+						int com = getComp(vvi)+s.cnt+1;
+						//if(com > 45) continue;
+						pq.push(S{vvi, s.cnt+1, com, pi(y, x)});
+					}
+				}
+			}
 		}
+		gettimeofday(&e, NULL);
+  	printf("time = %lf\n", (e.tv_sec - ss.tv_sec) + (e.tv_usec - ss.tv_usec)*1.0E-6);
+		cout << "queue = " << cnt_q << endl;
 	}
 	return 0;
 }

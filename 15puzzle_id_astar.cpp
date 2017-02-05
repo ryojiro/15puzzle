@@ -116,17 +116,11 @@ int main() {
 					pnt = pi(i, j);
 			}
 		}
-	/*
-	REP(i, 4) {
-		REP(j, 4)
-			cout << vv[i][j] << ' ';
-		cout << endl;
-	}
-	*/
+
 		if(!getComp(vv)) {
 			cout << 0 << endl;
-				gettimeofday(&e, NULL);
-				printf("time = %lf\n", (e.tv_sec - s.tv_sec) + (e.tv_usec - s.tv_usec)*1.0E-6);
+			gettimeofday(&e, NULL);
+			printf("time = %lf\n", (e.tv_sec - s.tv_sec) + (e.tv_usec - s.tv_usec)*1.0E-6);
 			continue;
 		}
 
